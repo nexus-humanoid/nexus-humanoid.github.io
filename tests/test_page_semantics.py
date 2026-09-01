@@ -21,6 +21,7 @@ class SemanticPageParser(HTMLParser):
         self._heading_text: list[str] = []
         self._resource: dict[str, str] | None = None
         self._resource_text: list[str] = []
+        self._section_ids: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
@@ -32,9 +33,15 @@ class SemanticPageParser(HTMLParser):
         if tag in {"h1", "h2", "h3"}:
             self._heading_tag = tag
             self._heading_text = []
+        if tag == "section":
+            self._section_ids.append(attributes.get("id", ""))
         if tag == "a" and "data-resource-id" in attributes:
             self._resource = {key: value or "" for key, value in attributes.items()}
+            self._resource["section"] = self._section_ids[-1] if self._section_ids else ""
+            self._resource["icon-count"] = "0"
             self._resource_text = []
+        if tag == "svg" and self._resource is not None:
+            self._resource["icon-count"] = str(int(self._resource["icon-count"]) + 1)
 
     def handle_endtag(self, tag: str) -> None:
         if tag == "title":
@@ -48,6 +55,8 @@ class SemanticPageParser(HTMLParser):
             self.resources.append(self._resource)
             self._resource = None
             self._resource_text = []
+        if tag == "section":
+            self._section_ids.pop()
 
     def handle_data(self, data: str) -> None:
         if self.in_title:
@@ -110,6 +119,21 @@ class PageSemanticsTests(unittest.TestCase):
             self.assertEqual(resource["aria-disabled"], "true")
             self.assertEqual(resource["tabindex"], "-1")
             self.assertTrue(resource["text"].endswith("Coming Soon"))
+
+    def test_primary_publication_links_precede_preview_and_use_familiar_icons(self) -> None:
+        page = parse_page()
+
+        primary = [resource for resource in page.resources if resource["section"] == "top"]
+        additional = [resource for resource in page.resources if resource["section"] == "resources"]
+        self.assertEqual(
+            [resource["data-resource-id"] for resource in primary],
+            ["preview", "paper", "arxiv", "code"],
+        )
+        self.assertTrue(all(resource["icon-count"] == "1" for resource in primary))
+        self.assertEqual(
+            [resource["data-resource-id"] for resource in additional],
+            ["model", "data", "bibtex"],
+        )
 
     def test_reservation_state_has_poster_and_hides_unconfigured_contact(self) -> None:
         page = parse_page()

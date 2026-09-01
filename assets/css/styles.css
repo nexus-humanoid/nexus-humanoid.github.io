@@ -155,6 +155,73 @@ button {
   line-height: 1.34;
 }
 
+.publication-links {
+  max-width: 880px;
+  margin: 30px auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.publication-link {
+  min-height: 48px;
+  padding: 10px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  background: var(--color-ink);
+  border: 1px solid var(--color-ink);
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 650;
+  text-decoration: none;
+  transition: transform 160ms ease, background 160ms ease;
+}
+
+.publication-link svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  fill: currentcolor;
+}
+
+.publication-link svg text {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 700;
+}
+
+.publication-link small {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.publication-link small::before {
+  margin-right: 7px;
+  content: "·";
+}
+
+.publication-link:not(.is-coming-soon):hover {
+  transform: translateY(-2px);
+  background: var(--color-teal);
+  border-color: var(--color-teal);
+}
+
+.publication-link.is-coming-soon {
+  color: #58666e;
+  background: #ece9e2;
+  border-color: var(--color-line);
+  cursor: default;
+  pointer-events: none;
+}
+
 .preview-section {
   max-width: var(--content-width);
   margin: 0 auto;
@@ -215,7 +282,7 @@ button {
   color: var(--color-teal);
 }
 
-.materials {
+.resources {
   padding: 56px max(28px, calc((100% - var(--content-width)) / 2 + 28px));
   background: var(--color-surface);
   border-block: 1px solid var(--color-line);
@@ -247,7 +314,7 @@ button {
 
 .resource-list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -390,7 +457,7 @@ footer > p {
     padding-inline: 16px;
   }
 
-  .materials {
+  .resources {
     padding-inline: 20px;
   }
 
