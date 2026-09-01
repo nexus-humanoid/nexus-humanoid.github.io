@@ -2,7 +2,27 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { siteConfig } from "../assets/js/site-config.js";
-import { buildSiteState } from "../assets/js/site.js";
+import * as siteModule from "../assets/js/site.js";
+
+const { buildSiteState } = siteModule;
+
+test("release cache key propagates to the site configuration request", () => {
+  assert.equal(typeof siteModule.versionedSiblingUrl, "function");
+  assert.equal(
+    siteModule.versionedSiblingUrl(
+      "./site-config.js",
+      "https://nexus-humanoid.github.io/assets/js/site.js?v=3",
+    ),
+    "./site-config.js?v=3",
+  );
+  assert.equal(
+    siteModule.versionedSiblingUrl(
+      "./site-config.js",
+      "https://nexus-humanoid.github.io/assets/js/site.js",
+    ),
+    "./site-config.js",
+  );
+});
 
 test("reservation config exposes only the approved contact email", () => {
   const state = buildSiteState(siteConfig);

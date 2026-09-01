@@ -1,4 +1,8 @@
-import { siteConfig } from "./site-config.js";
+export function versionedSiblingUrl(relativePath, moduleUrl = import.meta.url) {
+  return `${relativePath}${new URL(moduleUrl).search}`;
+}
+
+const { siteConfig } = await import(versionedSiblingUrl("./site-config.js"));
 
 const YOUTUBE_ID = /^[A-Za-z0-9_-]{11}$/;
 

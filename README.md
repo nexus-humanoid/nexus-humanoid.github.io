@@ -26,6 +26,10 @@ All release switches live in `assets/js/site-config.js`.
 
 Empty or invalid values remain hidden or display **Coming Soon**.
 
+After changing release switches, increment the `v` query on the module script near the
+end of `index.html`. The page propagates that cache key to `site-config.js`, preventing
+browsers from retaining the previous release state.
+
 ## Deploy at the organization URL
 
 1. Create the GitHub organization `nexus-humanoid`.
