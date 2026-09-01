@@ -19,11 +19,14 @@ class SemanticPageParser(HTMLParser):
         self.paper_title = ""
         self.headings: list[tuple[str, str]] = []
         self.resources: list[dict[str, str]] = []
+        self.contact_actions: list[dict[str, str]] = []
         self.elements: list[tuple[str, dict[str, str | None]]] = []
         self._heading_tag = ""
         self._heading_text: list[str] = []
         self._resource: dict[str, str] | None = None
         self._resource_text: list[str] = []
+        self._contact_action: dict[str, str] | None = None
+        self._contact_action_text: list[str] = []
         self._section_ids: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
@@ -57,6 +60,25 @@ class SemanticPageParser(HTMLParser):
             self._resource["svg-text-count"] = str(
                 int(self._resource["svg-text-count"]) + 1
             )
+        if tag == "button" and "data-contact-action" in attributes:
+            self._contact_action = {key: value or "" for key, value in attributes.items()}
+            self._contact_action["tag"] = tag
+            self._contact_action["icon-count"] = "0"
+            self._contact_action["path-count"] = "0"
+            self._contact_action["svg-text-count"] = "0"
+            self._contact_action_text = []
+        if tag == "svg" and self._contact_action is not None:
+            self._contact_action["icon-count"] = str(
+                int(self._contact_action["icon-count"]) + 1
+            )
+        if tag == "path" and self._contact_action is not None:
+            self._contact_action["path-count"] = str(
+                int(self._contact_action["path-count"]) + 1
+            )
+        if tag == "text" and self._contact_action is not None:
+            self._contact_action["svg-text-count"] = str(
+                int(self._contact_action["svg-text-count"]) + 1
+            )
 
     def handle_endtag(self, tag: str) -> None:
         if tag == "title":
@@ -73,6 +95,13 @@ class SemanticPageParser(HTMLParser):
             self.resources.append(self._resource)
             self._resource = None
             self._resource_text = []
+        if tag == "button" and self._contact_action is not None:
+            self._contact_action["text"] = " ".join(
+                "".join(self._contact_action_text).split()
+            )
+            self.contact_actions.append(self._contact_action)
+            self._contact_action = None
+            self._contact_action_text = []
         if tag == "section":
             self._section_ids.pop()
 
@@ -85,6 +114,8 @@ class SemanticPageParser(HTMLParser):
             self._heading_text.append(data)
         if self._resource is not None:
             self._resource_text.append(data)
+        if self._contact_action is not None:
+            self._contact_action_text.append(data)
 
 
 def parse_page() -> SemanticPageParser:
@@ -127,6 +158,12 @@ class PageSemanticsTests(unittest.TestCase):
         self.assertEqual(
             page.paper_title,
             "A Perceptive Foundation Policy for Cross-Domain Whole-Body Teleoperation",
+        )
+        self.assertTrue(
+            any(
+                tag == "br" and "desktop-title-break" in (attrs.get("class") or "").split()
+                for tag, attrs in page.elements
+            )
         )
         self.assertEqual(page.canonical, "https://nexus-humanoid.github.io/")
         self.assertEqual([heading for heading in page.headings if heading[0] == "h1"], [("h1", "NEXUS")])
@@ -179,7 +216,7 @@ class PageSemanticsTests(unittest.TestCase):
             any(tag == "a" and attrs.get("href") == "#resources" for tag, attrs in page.elements)
         )
 
-    def test_reservation_state_has_poster_and_hides_unconfigured_contact(self) -> None:
+    def test_reservation_state_has_poster(self) -> None:
         page = parse_page()
 
         self.assertTrue(any("data-video-mount" in attrs for _, attrs in page.elements))
@@ -192,11 +229,35 @@ class PageSemanticsTests(unittest.TestCase):
         )
         self.assertTrue(poster.get("alt"))
 
-        email = next(attrs for _, attrs in page.elements if "data-contact-email" in attrs)
-        wechat = next(attrs for _, attrs in page.elements if "data-wechat-trigger" in attrs)
-        self.assertIn("hidden", email)
-        self.assertIn("hidden", wechat)
-        self.assertTrue(any(tag == "dialog" and "data-wechat-dialog" in attrs for tag, attrs in page.elements))
+    def test_contact_actions_are_matching_icon_buttons(self) -> None:
+        page = parse_page()
+
+        self.assertEqual(
+            [action["data-contact-action"] for action in page.contact_actions],
+            ["email", "wechat"],
+        )
+        self.assertEqual([action["text"] for action in page.contact_actions], ["Email", "WeChat"])
+        self.assertTrue(all(action["tag"] == "button" for action in page.contact_actions))
+        self.assertTrue(all(action["icon-count"] == "1" for action in page.contact_actions))
+        self.assertTrue(all(action["path-count"] == "1" for action in page.contact_actions))
+        self.assertTrue(all(action["svg-text-count"] == "0" for action in page.contact_actions))
+        self.assertTrue(all("hidden" in action for action in page.contact_actions))
+
+    def test_contact_dialogs_reserve_email_and_wechat_details(self) -> None:
+        page = parse_page()
+
+        self.assertTrue(
+            any(tag == "dialog" and "data-email-dialog" in attrs for tag, attrs in page.elements)
+        )
+        self.assertTrue(any("data-email-address" in attrs for _, attrs in page.elements))
+        self.assertTrue(any("data-email-copy" in attrs for _, attrs in page.elements))
+        self.assertTrue(any("data-email-copy-status" in attrs for _, attrs in page.elements))
+        self.assertFalse(
+            any((attrs.get("href") or "").startswith("mailto:") for _, attrs in page.elements)
+        )
+        self.assertTrue(
+            any(tag == "dialog" and "data-wechat-dialog" in attrs for tag, attrs in page.elements)
+        )
 
     def test_preview_poster_is_web_ready(self) -> None:
         poster = PAGE_ROOT / "assets/images/preview-poster.webp"

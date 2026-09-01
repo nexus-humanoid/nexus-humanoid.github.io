@@ -153,6 +153,11 @@ button {
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(1.35rem, 3vw, 2.05rem);
   line-height: 1.34;
+  text-wrap: balance;
+}
+
+.title-nowrap {
+  white-space: nowrap;
 }
 
 .publication-links {
@@ -303,20 +308,38 @@ footer > p {
   gap: 10px;
 }
 
-.contact-actions a,
 .contact-actions button {
   min-height: 48px;
   padding: 9px 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   color: var(--color-ink);
   background: transparent;
   border: 1px solid var(--color-line);
   border-radius: 999px;
   cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 650;
   text-decoration: none;
+  transition: color 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 
-.wechat-dialog {
-  width: min(92vw, 380px);
+.contact-actions button:hover {
+  color: var(--color-teal);
+  border-color: var(--color-teal);
+  transform: translateY(-2px);
+}
+
+.contact-actions svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  fill: currentcolor;
+}
+
+.contact-dialog {
+  width: min(92vw, 420px);
   padding: 26px;
   color: var(--color-ink);
   background: var(--color-paper);
@@ -324,14 +347,50 @@ footer > p {
   border-radius: var(--radius-large);
 }
 
-.wechat-dialog::backdrop {
+.contact-dialog::backdrop {
   background: rgb(12 24 30 / 58%);
 }
 
-.wechat-dialog h2 {
+.contact-dialog h2 {
   margin: 0 0 16px;
   font-family: Georgia, "Times New Roman", serif;
   font-weight: 500;
+}
+
+.email-address {
+  margin: 0 0 16px;
+  padding: 13px 15px;
+  overflow-wrap: anywhere;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  user-select: all;
+}
+
+.copy-email {
+  min-height: 44px;
+  padding: 9px 15px;
+  color: #fff;
+  background: var(--color-ink);
+  border: 1px solid var(--color-ink);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+
+.copy-email:hover {
+  background: var(--color-teal);
+  border-color: var(--color-teal);
+}
+
+.copy-status {
+  min-height: 1.25em;
+  margin: 10px 0 0;
+  color: var(--color-muted);
+  font-size: 0.78rem;
 }
 
 .wechat-dialog img {
@@ -361,6 +420,10 @@ footer > p {
 
   .hero {
     padding: 60px 20px 32px;
+  }
+
+  .desktop-title-break {
+    display: none;
   }
 
   .preview-section {

@@ -85,18 +85,60 @@ export function renderResources(root, resources) {
   }
 }
 
-export function renderContact(root, contact) {
-  const email = root.querySelector("[data-contact-email]");
-  if (email && contact.email) {
-    email.href = `mailto:${contact.email}`;
-    email.textContent = contact.email;
-    email.hidden = false;
+function bindDialog(trigger, dialog, beforeOpen) {
+  const close = dialog.querySelector("[data-dialog-close]");
+
+  trigger.addEventListener("click", () => {
+    beforeOpen?.();
+    dialog.showModal();
+  });
+  close?.addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+}
+
+export async function copyContactEmail(email, clipboard = globalThis.navigator?.clipboard) {
+  if (!clipboard || typeof clipboard.writeText !== "function") return false;
+
+  try {
+    await clipboard.writeText(email);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function renderContact(root, contact, clipboard = globalThis.navigator?.clipboard) {
+  const emailTrigger = root.querySelector("[data-email-trigger]");
+  const emailDialog = root.querySelector("[data-email-dialog]");
+  const emailAddress = root.querySelector("[data-email-address]");
+  const emailCopy = root.querySelector("[data-email-copy]");
+  const emailCopyStatus = root.querySelector("[data-email-copy-status]");
+  if (
+    emailTrigger &&
+    emailDialog &&
+    emailAddress &&
+    emailCopy &&
+    emailCopyStatus &&
+    contact.email
+  ) {
+    emailAddress.textContent = contact.email;
+    emailTrigger.hidden = false;
+    bindDialog(emailTrigger, emailDialog, () => {
+      emailCopyStatus.textContent = "";
+    });
+    emailCopy.addEventListener("click", async () => {
+      const copied = await copyContactEmail(contact.email, clipboard);
+      emailCopyStatus.textContent = copied
+        ? "Copied"
+        : "Select and copy the address manually.";
+    });
   }
 
   const trigger = root.querySelector("[data-wechat-trigger]");
   const dialog = root.querySelector("[data-wechat-dialog]");
   const image = root.querySelector("[data-wechat-image]");
-  const close = root.querySelector("[data-dialog-close]");
   if (!trigger || !dialog || !image || !contact.wechatQrPath) return;
 
   image.addEventListener(
@@ -116,11 +158,7 @@ export function renderContact(root, contact) {
   );
   image.src = contact.wechatQrPath;
 
-  trigger.addEventListener("click", () => dialog.showModal());
-  close?.addEventListener("click", () => dialog.close());
-  dialog.addEventListener("click", (event) => {
-    if (event.target === dialog) dialog.close();
-  });
+  bindDialog(trigger, dialog);
 }
 
 export function renderSite(root, config) {

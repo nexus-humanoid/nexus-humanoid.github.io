@@ -6,6 +6,33 @@ import * as siteModule from "../assets/js/site.js";
 
 const { buildSiteState } = siteModule;
 
+test("copying the contact email writes only the address", async () => {
+  assert.equal(typeof siteModule.copyContactEmail, "function");
+
+  let copied = "";
+  const success = await siteModule.copyContactEmail("xiangyu.miao@outlook.com", {
+    writeText: async (value) => {
+      copied = value;
+    },
+  });
+
+  assert.equal(success, true);
+  assert.equal(copied, "xiangyu.miao@outlook.com");
+});
+
+test("copying the contact email fails safely without clipboard access", async () => {
+  assert.equal(typeof siteModule.copyContactEmail, "function");
+  assert.equal(await siteModule.copyContactEmail("xiangyu.miao@outlook.com", undefined), false);
+  assert.equal(
+    await siteModule.copyContactEmail("xiangyu.miao@outlook.com", {
+      writeText: async () => {
+        throw new Error("Clipboard permission denied");
+      },
+    }),
+    false,
+  );
+});
+
 test("release cache key propagates to the site configuration request", () => {
   assert.equal(typeof siteModule.versionedSiblingUrl, "function");
   assert.equal(
