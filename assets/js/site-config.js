@@ -1,6 +1,6 @@
 export const siteConfig = Object.freeze({
   youtubeId: "",
-  contactEmail: "",
+  contactEmail: "xiangyu.miao@outlook.com",
   wechatQrPath: "",
   resources: Object.freeze([
     { id: "preview", label: "Preview Video", status: "coming-soon", href: "" },

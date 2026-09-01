@@ -4,11 +4,11 @@ import test from "node:test";
 import { siteConfig } from "../assets/js/site-config.js";
 import { buildSiteState } from "../assets/js/site.js";
 
-test("reservation config exposes no public destinations", () => {
+test("reservation config exposes only the approved contact email", () => {
   const state = buildSiteState(siteConfig);
 
   assert.equal(state.video.kind, "coming-soon");
-  assert.equal(state.contact.email, "");
+  assert.equal(state.contact.email, "xiangyu.miao@outlook.com");
   assert.equal(state.contact.wechatQrPath, "");
   assert.ok(state.resources.every((resource) => resource.available === false));
   assert.ok(state.resources.every((resource) => resource.href === ""));
