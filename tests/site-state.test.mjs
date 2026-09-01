@@ -30,11 +30,21 @@ test("reservation config exposes only the approved contact email", () => {
   assert.equal(state.video.kind, "coming-soon");
   assert.equal(state.contact.email, "xiangyu.miao@outlook.com");
   assert.equal(state.contact.wechatQrPath, "assets/images/wechat-qr.jpg");
+});
+
+test("reservation config exposes only the primary release resources", () => {
+  const state = buildSiteState(siteConfig);
+
+  assert.deepEqual(
+    state.resources.map((resource) => resource.id),
+    ["youtube", "paper", "arxiv", "code"],
+  );
+  assert.equal(state.resources[0].label, "Video");
   assert.ok(state.resources.every((resource) => resource.available === false));
   assert.ok(state.resources.every((resource) => resource.href === ""));
 });
 
-test("valid YouTube ID activates only the preview resource", () => {
+test("valid YouTube ID activates only the YouTube resource", () => {
   const state = buildSiteState({ ...siteConfig, youtubeId: "abcdefghijk" });
 
   assert.deepEqual(state.video, {
@@ -44,7 +54,7 @@ test("valid YouTube ID activates only the preview resource", () => {
   });
   assert.deepEqual(
     state.resources.filter((resource) => resource.available).map((resource) => resource.id),
-    ["preview"],
+    ["youtube"],
   );
 });
 

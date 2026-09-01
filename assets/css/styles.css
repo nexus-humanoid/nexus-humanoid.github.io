@@ -187,13 +187,6 @@ button {
   fill: currentcolor;
 }
 
-.publication-link svg text {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 20px;
-  font-style: italic;
-  font-weight: 700;
-}
-
 .publication-link small {
   display: inline-flex;
   align-items: center;
@@ -282,79 +275,6 @@ button {
   color: var(--color-teal);
 }
 
-.resources {
-  padding: 56px max(28px, calc((100% - var(--content-width)) / 2 + 28px));
-  background: var(--color-surface);
-  border-block: 1px solid var(--color-line);
-}
-
-.section-heading {
-  margin-bottom: 24px;
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 20px;
-}
-
-.section-heading h2 {
-  margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 2.05rem;
-  font-weight: 500;
-}
-
-.section-heading p {
-  margin: 0;
-  color: var(--color-rust);
-  font-size: 0.74rem;
-  font-weight: 650;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.resource-list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.resource-link {
-  min-height: 104px;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background: var(--color-paper);
-  border: 1px solid var(--color-line);
-  border-radius: 10px;
-  text-decoration: none;
-  transition: transform 160ms ease, border-color 160ms ease;
-}
-
-.resource-link:not(.is-coming-soon):hover {
-  transform: translateY(-2px);
-  border-color: var(--color-teal);
-}
-
-.resource-link small {
-  color: var(--color-teal);
-  font-size: 0.68rem;
-  font-weight: 650;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.resource-link.is-coming-soon {
-  color: #626e74;
-  background: #f8f6f1;
-  cursor: default;
-  pointer-events: none;
-}
-
-.resource-link.is-coming-soon small {
-  color: #8b8982;
-}
-
 footer {
   max-width: var(--content-width);
   margin: 0 auto;
@@ -430,12 +350,6 @@ footer > p {
   font-size: 1.6rem;
 }
 
-@media (max-width: 900px) {
-  .resource-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 720px) {
   .site-header {
     padding-inline: 20px;
@@ -445,29 +359,12 @@ footer > p {
     gap: 0;
   }
 
-  .site-header nav a:nth-child(2) {
-    display: none;
-  }
-
   .hero {
     padding: 60px 20px 32px;
   }
 
   .preview-section {
     padding-inline: 16px;
-  }
-
-  .resources {
-    padding-inline: 20px;
-  }
-
-  .section-heading {
-    align-items: start;
-    flex-direction: column;
-  }
-
-  .resource-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   footer {

@@ -43,9 +43,9 @@ export function buildSiteState(config) {
         }
       : { kind: "coming-soon", embedUrl: "", watchUrl: "" },
     resources: config.resources.map(({ id, label, status, href }) => {
-      const destination = id === "preview" ? watchUrl : safeHttpUrl(href);
+      const destination = id === "youtube" ? watchUrl : safeHttpUrl(href);
       const available =
-        id === "preview" ? Boolean(youtubeId) : status === "available" && Boolean(destination);
+        id === "youtube" ? Boolean(youtubeId) : status === "available" && Boolean(destination);
       return { id, label, available, href: available ? destination : "" };
     }),
     contact: {

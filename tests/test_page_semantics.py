@@ -46,9 +46,17 @@ class SemanticPageParser(HTMLParser):
             self._resource = {key: value or "" for key, value in attributes.items()}
             self._resource["section"] = self._section_ids[-1] if self._section_ids else ""
             self._resource["icon-count"] = "0"
+            self._resource["path-count"] = "0"
+            self._resource["svg-text-count"] = "0"
             self._resource_text = []
         if tag == "svg" and self._resource is not None:
             self._resource["icon-count"] = str(int(self._resource["icon-count"]) + 1)
+        if tag == "path" and self._resource is not None:
+            self._resource["path-count"] = str(int(self._resource["path-count"]) + 1)
+        if tag == "text" and self._resource is not None:
+            self._resource["svg-text-count"] = str(
+                int(self._resource["svg-text-count"]) + 1
+            )
 
     def handle_endtag(self, tag: str) -> None:
         if tag == "title":
@@ -132,7 +140,16 @@ class PageSemanticsTests(unittest.TestCase):
 
         self.assertEqual(
             [resource["data-resource-id"] for resource in page.resources],
-            ["preview", "paper", "arxiv", "code", "model", "data", "bibtex"],
+            ["youtube", "paper", "arxiv", "code"],
+        )
+        self.assertEqual(
+            [resource["text"] for resource in page.resources],
+            [
+                "Video Coming Soon",
+                "Paper Coming Soon",
+                "arXiv Coming Soon",
+                "Code Coming Soon",
+            ],
         )
         for resource in page.resources:
             self.assertNotIn("href", resource)
@@ -140,19 +157,26 @@ class PageSemanticsTests(unittest.TestCase):
             self.assertEqual(resource["tabindex"], "-1")
             self.assertTrue(resource["text"].endswith("Coming Soon"))
 
-    def test_primary_publication_links_precede_preview_and_use_familiar_icons(self) -> None:
+    def test_primary_publication_links_use_vector_brand_icons(self) -> None:
         page = parse_page()
 
         primary = [resource for resource in page.resources if resource["section"] == "top"]
-        additional = [resource for resource in page.resources if resource["section"] == "resources"]
         self.assertEqual(
             [resource["data-resource-id"] for resource in primary],
-            ["preview", "paper", "arxiv", "code"],
+            ["youtube", "paper", "arxiv", "code"],
         )
         self.assertTrue(all(resource["icon-count"] == "1" for resource in primary))
-        self.assertEqual(
-            [resource["data-resource-id"] for resource in additional],
-            ["model", "data", "bibtex"],
+        self.assertTrue(all(resource["path-count"] == "1" for resource in primary))
+        self.assertTrue(all(resource["svg-text-count"] == "0" for resource in primary))
+
+    def test_reservation_page_omits_unreleased_additional_resources(self) -> None:
+        page = parse_page()
+
+        self.assertFalse(
+            any(tag == "section" and attrs.get("id") == "resources" for tag, attrs in page.elements)
+        )
+        self.assertFalse(
+            any(tag == "a" and attrs.get("href") == "#resources" for tag, attrs in page.elements)
         )
 
     def test_reservation_state_has_poster_and_hides_unconfigured_contact(self) -> None:
