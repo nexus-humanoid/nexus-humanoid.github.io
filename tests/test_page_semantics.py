@@ -1,0 +1,153 @@
+from html.parser import HTMLParser
+import json
+from pathlib import Path
+import subprocess
+import unittest
+
+
+PAGE_ROOT = Path(__file__).resolve().parents[1]
+
+
+class SemanticPageParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.canonical = ""
+        self.in_title = False
+        self.title = ""
+        self.headings: list[tuple[str, str]] = []
+        self.resources: list[dict[str, str]] = []
+        self.elements: list[tuple[str, dict[str, str | None]]] = []
+        self._heading_tag = ""
+        self._heading_text: list[str] = []
+        self._resource: dict[str, str] | None = None
+        self._resource_text: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attributes = dict(attrs)
+        self.elements.append((tag, attributes))
+        if tag == "link" and attributes.get("rel") == "canonical":
+            self.canonical = attributes.get("href", "")
+        if tag == "title":
+            self.in_title = True
+        if tag in {"h1", "h2", "h3"}:
+            self._heading_tag = tag
+            self._heading_text = []
+        if tag == "a" and "data-resource-id" in attributes:
+            self._resource = {key: value or "" for key, value in attributes.items()}
+            self._resource_text = []
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "title":
+            self.in_title = False
+        if tag == self._heading_tag:
+            self.headings.append((tag, "".join(self._heading_text).strip()))
+            self._heading_tag = ""
+            self._heading_text = []
+        if tag == "a" and self._resource is not None:
+            self._resource["text"] = " ".join("".join(self._resource_text).split())
+            self.resources.append(self._resource)
+            self._resource = None
+            self._resource_text = []
+
+    def handle_data(self, data: str) -> None:
+        if self.in_title:
+            self.title += data
+        if self._heading_tag:
+            self._heading_text.append(data)
+        if self._resource is not None:
+            self._resource_text.append(data)
+
+
+def parse_page() -> SemanticPageParser:
+    parser = SemanticPageParser()
+    parser.feed((PAGE_ROOT / "index.html").read_text(encoding="utf-8"))
+    return parser
+
+
+def image_dimensions(path: Path) -> tuple[int, int]:
+    result = subprocess.run(
+        [
+            "ffprobe",
+            "-v",
+            "error",
+            "-select_streams",
+            "v:0",
+            "-show_entries",
+            "stream=width,height",
+            "-of",
+            "json",
+            str(path),
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    stream = json.loads(result.stdout)["streams"][0]
+    return stream["width"], stream["height"]
+
+
+class PageSemanticsTests(unittest.TestCase):
+    def test_identity_has_canonical_url_and_one_nexus_heading(self) -> None:
+        page = parse_page()
+
+        self.assertEqual(page.title, "NEXUS | Perceptive Whole-Body Teleoperation")
+        self.assertEqual(page.canonical, "https://nexus-humanoid.github.io/")
+        self.assertEqual([heading for heading in page.headings if heading[0] == "h1"], [("h1", "NEXUS")])
+        favicon = next(
+            attrs for tag, attrs in page.elements if tag == "link" and attrs.get("rel") == "icon"
+        )
+        self.assertEqual(favicon.get("href"), "assets/images/favicon.svg")
+
+    def test_academic_resources_are_complete_and_disabled_before_release(self) -> None:
+        page = parse_page()
+
+        self.assertEqual(
+            [resource["data-resource-id"] for resource in page.resources],
+            ["preview", "paper", "arxiv", "code", "model", "data", "bibtex"],
+        )
+        for resource in page.resources:
+            self.assertNotIn("href", resource)
+            self.assertEqual(resource["aria-disabled"], "true")
+            self.assertEqual(resource["tabindex"], "-1")
+            self.assertTrue(resource["text"].endswith("Coming Soon"))
+
+    def test_reservation_state_has_poster_and_hides_unconfigured_contact(self) -> None:
+        page = parse_page()
+
+        self.assertTrue(any("data-video-mount" in attrs for _, attrs in page.elements))
+        self.assertTrue(any("data-video-coming-soon" in attrs for _, attrs in page.elements))
+        self.assertFalse(any(tag == "iframe" for tag, _ in page.elements))
+        poster = next(
+            attrs
+            for tag, attrs in page.elements
+            if tag == "img" and attrs.get("src") == "assets/images/preview-poster.webp"
+        )
+        self.assertTrue(poster.get("alt"))
+
+        email = next(attrs for _, attrs in page.elements if "data-contact-email" in attrs)
+        wechat = next(attrs for _, attrs in page.elements if "data-wechat-trigger" in attrs)
+        self.assertIn("hidden", email)
+        self.assertIn("hidden", wechat)
+        self.assertTrue(any(tag == "dialog" and "data-wechat-dialog" in attrs for tag, attrs in page.elements))
+
+    def test_preview_poster_is_web_ready(self) -> None:
+        poster = PAGE_ROOT / "assets/images/preview-poster.webp"
+
+        self.assertTrue(poster.is_file())
+        self.assertLess(poster.stat().st_size, 2_000_000)
+        self.assertEqual(image_dimensions(poster), (1600, 900))
+
+    def test_share_and_github_pages_assets_are_ready(self) -> None:
+        social_card = PAGE_ROOT / "assets/images/social-card.webp"
+        favicon = PAGE_ROOT / "assets/images/favicon.svg"
+
+        self.assertTrue(social_card.is_file())
+        self.assertLess(social_card.stat().st_size, 2_000_000)
+        self.assertEqual(image_dimensions(social_card), (1200, 630))
+        self.assertTrue(favicon.is_file())
+        self.assertIn("<svg", favicon.read_text(encoding="utf-8"))
+        self.assertTrue((PAGE_ROOT / ".nojekyll").is_file())
+
+
+if __name__ == "__main__":
+    unittest.main()

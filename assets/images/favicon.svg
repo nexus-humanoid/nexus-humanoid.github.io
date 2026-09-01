@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="NEXUS N monogram">
+  <rect width="64" height="64" rx="12" fill="#17242d"/>
+  <path d="M16 47V17h8l16 20V17h8v30h-8L24 27v20z" fill="#fbfaf7"/>
+  <circle cx="51" cy="13" r="5" fill="#3b8584"/>
+</svg>
