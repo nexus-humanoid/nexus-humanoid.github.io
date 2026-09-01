@@ -140,12 +140,16 @@ class PageSemanticsTests(unittest.TestCase):
     def test_share_and_github_pages_assets_are_ready(self) -> None:
         social_card = PAGE_ROOT / "assets/images/social-card.webp"
         favicon = PAGE_ROOT / "assets/images/favicon.svg"
+        wechat_qr = PAGE_ROOT / "assets/images/wechat-qr.jpg"
 
         self.assertTrue(social_card.is_file())
         self.assertLess(social_card.stat().st_size, 2_000_000)
         self.assertEqual(image_dimensions(social_card), (1200, 630))
         self.assertTrue(favicon.is_file())
         self.assertIn("<svg", favicon.read_text(encoding="utf-8"))
+        self.assertTrue(wechat_qr.is_file())
+        self.assertLess(wechat_qr.stat().st_size, 2_000_000)
+        self.assertEqual(image_dimensions(wechat_qr), (888, 1131))
         self.assertTrue((PAGE_ROOT / ".nojekyll").is_file())
 
 

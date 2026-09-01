@@ -9,7 +9,7 @@ test("reservation config exposes only the approved contact email", () => {
 
   assert.equal(state.video.kind, "coming-soon");
   assert.equal(state.contact.email, "xiangyu.miao@outlook.com");
-  assert.equal(state.contact.wechatQrPath, "");
+  assert.equal(state.contact.wechatQrPath, "assets/images/wechat-qr.jpg");
   assert.ok(state.resources.every((resource) => resource.available === false));
   assert.ok(state.resources.every((resource) => resource.href === ""));
 });

@@ -1,7 +1,7 @@
 export const siteConfig = Object.freeze({
   youtubeId: "",
   contactEmail: "xiangyu.miao@outlook.com",
-  wechatQrPath: "",
+  wechatQrPath: "assets/images/wechat-qr.jpg",
   resources: Object.freeze([
     { id: "preview", label: "Preview Video", status: "coming-soon", href: "" },
     { id: "paper", label: "Paper", status: "coming-soon", href: "" },
