@@ -12,8 +12,11 @@ class SemanticPageParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self.canonical = ""
+        self.og_title = ""
         self.in_title = False
         self.title = ""
+        self.in_paper_title = False
+        self.paper_title = ""
         self.headings: list[tuple[str, str]] = []
         self.resources: list[dict[str, str]] = []
         self.elements: list[tuple[str, dict[str, str | None]]] = []
@@ -28,8 +31,12 @@ class SemanticPageParser(HTMLParser):
         self.elements.append((tag, attributes))
         if tag == "link" and attributes.get("rel") == "canonical":
             self.canonical = attributes.get("href", "")
+        if tag == "meta" and attributes.get("property") == "og:title":
+            self.og_title = attributes.get("content", "")
         if tag == "title":
             self.in_title = True
+        if tag == "p" and "paper-title" in (attributes.get("class") or "").split():
+            self.in_paper_title = True
         if tag in {"h1", "h2", "h3"}:
             self._heading_tag = tag
             self._heading_text = []
@@ -46,6 +53,9 @@ class SemanticPageParser(HTMLParser):
     def handle_endtag(self, tag: str) -> None:
         if tag == "title":
             self.in_title = False
+        if tag == "p" and self.in_paper_title:
+            self.in_paper_title = False
+            self.paper_title = " ".join(self.paper_title.split())
         if tag == self._heading_tag:
             self.headings.append((tag, "".join(self._heading_text).strip()))
             self._heading_tag = ""
@@ -61,6 +71,8 @@ class SemanticPageParser(HTMLParser):
     def handle_data(self, data: str) -> None:
         if self.in_title:
             self.title += data
+        if self.in_paper_title:
+            self.paper_title += data
         if self._heading_tag:
             self._heading_text.append(data)
         if self._resource is not None:
@@ -99,7 +111,15 @@ class PageSemanticsTests(unittest.TestCase):
     def test_identity_has_canonical_url_and_one_nexus_heading(self) -> None:
         page = parse_page()
 
-        self.assertEqual(page.title, "NEXUS | Perceptive Whole-Body Teleoperation")
+        full_title = (
+            "NEXUS: A Perceptive Foundation Policy for Cross-Domain Whole-Body Teleoperation"
+        )
+        self.assertEqual(page.title, full_title)
+        self.assertEqual(page.og_title, full_title)
+        self.assertEqual(
+            page.paper_title,
+            "A Perceptive Foundation Policy for Cross-Domain Whole-Body Teleoperation",
+        )
         self.assertEqual(page.canonical, "https://nexus-humanoid.github.io/")
         self.assertEqual([heading for heading in page.headings if heading[0] == "h1"], [("h1", "NEXUS")])
         favicon = next(
