@@ -20,6 +20,7 @@ class SemanticPageParser(HTMLParser):
         self.headings: list[tuple[str, str]] = []
         self.resources: list[dict[str, str]] = []
         self.contact_actions: list[dict[str, str]] = []
+        self.footer_links: list[dict[str, str]] = []
         self.elements: list[tuple[str, dict[str, str | None]]] = []
         self._heading_tag = ""
         self._heading_text: list[str] = []
@@ -27,6 +28,9 @@ class SemanticPageParser(HTMLParser):
         self._resource_text: list[str] = []
         self._contact_action: dict[str, str] | None = None
         self._contact_action_text: list[str] = []
+        self._footer_depth = 0
+        self._footer_link: dict[str, str] | None = None
+        self._footer_link_text: list[str] = []
         self._section_ids: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
@@ -45,6 +49,11 @@ class SemanticPageParser(HTMLParser):
             self._heading_text = []
         if tag == "section":
             self._section_ids.append(attributes.get("id", ""))
+        if tag == "footer":
+            self._footer_depth += 1
+        if tag == "a" and self._footer_depth:
+            self._footer_link = {key: value or "" for key, value in attributes.items()}
+            self._footer_link_text = []
         if tag == "a" and "data-resource-id" in attributes:
             self._resource = {key: value or "" for key, value in attributes.items()}
             self._resource["section"] = self._section_ids[-1] if self._section_ids else ""
@@ -102,8 +111,15 @@ class SemanticPageParser(HTMLParser):
             self.contact_actions.append(self._contact_action)
             self._contact_action = None
             self._contact_action_text = []
+        if tag == "a" and self._footer_link is not None:
+            self._footer_link["text"] = " ".join("".join(self._footer_link_text).split())
+            self.footer_links.append(self._footer_link)
+            self._footer_link = None
+            self._footer_link_text = []
         if tag == "section":
             self._section_ids.pop()
+        if tag == "footer":
+            self._footer_depth -= 1
 
     def handle_data(self, data: str) -> None:
         if self.in_title:
@@ -116,6 +132,8 @@ class SemanticPageParser(HTMLParser):
             self._resource_text.append(data)
         if self._contact_action is not None:
             self._contact_action_text.append(data)
+        if self._footer_link is not None:
+            self._footer_link_text.append(data)
 
 
 def parse_page() -> SemanticPageParser:
@@ -258,6 +276,16 @@ class PageSemanticsTests(unittest.TestCase):
         self.assertTrue(
             any(tag == "dialog" and "data-wechat-dialog" in attrs for tag, attrs in page.elements)
         )
+
+    def test_contact_footer_exposes_personal_homepage_link(self) -> None:
+        page = parse_page()
+
+        homepage = next(
+            link for link in page.footer_links if link.get("href") == "https://xiangyumiao.pages.dev/"
+        )
+        self.assertEqual(homepage["text"], "Homepage")
+        self.assertEqual(homepage["target"], "_blank")
+        self.assertEqual(homepage["rel"], "noopener noreferrer")
 
     def test_preview_poster_is_web_ready(self) -> None:
         poster = PAGE_ROOT / "assets/images/preview-poster.webp"

@@ -308,7 +308,8 @@ footer > p {
   gap: 10px;
 }
 
-.contact-actions button {
+.contact-actions button,
+.contact-actions a {
   min-height: 48px;
   padding: 9px 15px;
   display: inline-flex;
@@ -325,7 +326,8 @@ footer > p {
   transition: color 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 
-.contact-actions button:hover {
+.contact-actions button:hover,
+.contact-actions a:hover {
   color: var(--color-teal);
   border-color: var(--color-teal);
   transform: translateY(-2px);
