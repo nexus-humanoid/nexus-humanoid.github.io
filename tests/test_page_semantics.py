@@ -19,6 +19,7 @@ class SemanticPageParser(HTMLParser):
         self.paper_title = ""
         self.headings: list[tuple[str, str]] = []
         self.resources: list[dict[str, str]] = []
+        self.social_links: list[dict[str, str]] = []
         self.contact_actions: list[dict[str, str]] = []
         self.footer_links: list[dict[str, str]] = []
         self.elements: list[tuple[str, dict[str, str | None]]] = []
@@ -26,6 +27,8 @@ class SemanticPageParser(HTMLParser):
         self._heading_text: list[str] = []
         self._resource: dict[str, str] | None = None
         self._resource_text: list[str] = []
+        self._social_link: dict[str, str] | None = None
+        self._social_link_text: list[str] = []
         self._contact_action: dict[str, str] | None = None
         self._contact_action_text: list[str] = []
         self._footer_depth = 0
@@ -61,6 +64,13 @@ class SemanticPageParser(HTMLParser):
             self._resource["path-count"] = "0"
             self._resource["svg-text-count"] = "0"
             self._resource_text = []
+        if tag == "a" and "data-social-id" in attributes:
+            self._social_link = {key: value or "" for key, value in attributes.items()}
+            self._social_link["section"] = self._section_ids[-1] if self._section_ids else ""
+            self._social_link["icon-count"] = "0"
+            self._social_link["path-count"] = "0"
+            self._social_link["svg-text-count"] = "0"
+            self._social_link_text = []
         if tag == "svg" and self._resource is not None:
             self._resource["icon-count"] = str(int(self._resource["icon-count"]) + 1)
         if tag == "path" and self._resource is not None:
@@ -68,6 +78,14 @@ class SemanticPageParser(HTMLParser):
         if tag == "text" and self._resource is not None:
             self._resource["svg-text-count"] = str(
                 int(self._resource["svg-text-count"]) + 1
+            )
+        if tag == "svg" and self._social_link is not None:
+            self._social_link["icon-count"] = str(int(self._social_link["icon-count"]) + 1)
+        if tag == "path" and self._social_link is not None:
+            self._social_link["path-count"] = str(int(self._social_link["path-count"]) + 1)
+        if tag == "text" and self._social_link is not None:
+            self._social_link["svg-text-count"] = str(
+                int(self._social_link["svg-text-count"]) + 1
             )
         if tag == "button" and "data-contact-action" in attributes:
             self._contact_action = {key: value or "" for key, value in attributes.items()}
@@ -104,6 +122,11 @@ class SemanticPageParser(HTMLParser):
             self.resources.append(self._resource)
             self._resource = None
             self._resource_text = []
+        if tag == "a" and self._social_link is not None:
+            self._social_link["text"] = " ".join("".join(self._social_link_text).split())
+            self.social_links.append(self._social_link)
+            self._social_link = None
+            self._social_link_text = []
         if tag == "button" and self._contact_action is not None:
             self._contact_action["text"] = " ".join(
                 "".join(self._contact_action_text).split()
@@ -130,6 +153,8 @@ class SemanticPageParser(HTMLParser):
             self._heading_text.append(data)
         if self._resource is not None:
             self._resource_text.append(data)
+        if self._social_link is not None:
+            self._social_link_text.append(data)
         if self._contact_action is not None:
             self._contact_action_text.append(data)
         if self._footer_link is not None:
@@ -223,6 +248,20 @@ class PageSemanticsTests(unittest.TestCase):
         self.assertTrue(all(resource["icon-count"] == "1" for resource in primary))
         self.assertTrue(all(resource["path-count"] == "1" for resource in primary))
         self.assertTrue(all(resource["svg-text-count"] == "0" for resource in primary))
+
+    def test_x_post_is_a_top_button_with_an_icon(self) -> None:
+        page = parse_page()
+
+        x_link = next(link for link in page.social_links if link["data-social-id"] == "x")
+        self.assertEqual(x_link["section"], "top")
+        self.assertEqual(x_link["href"], "https://x.com/xiangyu_miao/status/2095706449028710582")
+        self.assertEqual(x_link["text"], "X (Twitter)")
+        self.assertEqual(x_link["aria-label"], "NEXUS on X (Twitter)")
+        self.assertEqual(x_link["target"], "_blank")
+        self.assertEqual(x_link["rel"], "noopener noreferrer")
+        self.assertEqual(x_link["icon-count"], "1")
+        self.assertEqual(x_link["path-count"], "1")
+        self.assertEqual(x_link["svg-text-count"], "0")
 
     def test_reservation_page_omits_unreleased_additional_resources(self) -> None:
         page = parse_page()

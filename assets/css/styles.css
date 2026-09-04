@@ -122,7 +122,7 @@ button {
 }
 
 .hero {
-  max-width: 960px;
+  max-width: 1120px;
   margin: 0 auto;
   padding: 82px 28px 38px;
   text-align: center;
@@ -161,7 +161,7 @@ button {
 }
 
 .publication-links {
-  max-width: 880px;
+  max-width: 1040px;
   margin: 30px auto 0;
   display: flex;
   flex-wrap: wrap;
