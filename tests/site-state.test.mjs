@@ -51,15 +51,25 @@ test("release cache key propagates to the site configuration request", () => {
   );
 });
 
-test("reservation config exposes only the approved contact email", () => {
+test("published config exposes the approved video and contact email", () => {
   const state = buildSiteState(siteConfig);
 
-  assert.equal(state.video.kind, "coming-soon");
+  assert.deepEqual(state.video, {
+    kind: "youtube",
+    embedUrl: "https://www.youtube-nocookie.com/embed/2J9YmBuMFoc?rel=0",
+    watchUrl: "https://www.youtube.com/watch?v=2J9YmBuMFoc",
+  });
+  assert.deepEqual(state.resources.find((resource) => resource.id === "youtube"), {
+    id: "youtube",
+    label: "Video",
+    available: true,
+    href: "https://www.youtube.com/watch?v=2J9YmBuMFoc",
+  });
   assert.equal(state.contact.email, "xiangyu.miao@outlook.com");
   assert.equal(state.contact.wechatQrPath, "assets/images/wechat-qr.jpg");
 });
 
-test("reservation config exposes only the primary release resources", () => {
+test("published config exposes only the video as an available primary resource", () => {
   const state = buildSiteState(siteConfig);
 
   assert.deepEqual(
@@ -67,8 +77,10 @@ test("reservation config exposes only the primary release resources", () => {
     ["youtube", "paper", "arxiv", "code"],
   );
   assert.equal(state.resources[0].label, "Video");
-  assert.ok(state.resources.every((resource) => resource.available === false));
-  assert.ok(state.resources.every((resource) => resource.href === ""));
+  assert.equal(state.resources[0].available, true);
+  assert.equal(state.resources[0].href, "https://www.youtube.com/watch?v=2J9YmBuMFoc");
+  assert.ok(state.resources.slice(1).every((resource) => resource.available === false));
+  assert.ok(state.resources.slice(1).every((resource) => resource.href === ""));
 });
 
 test("valid YouTube ID activates only the YouTube resource", () => {
