@@ -17,9 +17,7 @@ function safeHttpUrl(value) {
 }
 
 function validEmail(value) {
-  return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-    ? value
-    : "";
+  return typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? value : "";
 }
 
 function safeAssetPath(value) {
@@ -55,20 +53,6 @@ export function buildSiteState(config) {
   };
 }
 
-export function renderVideo(root, video) {
-  const mount = root.querySelector("[data-video-mount]");
-  if (!mount || video.kind !== "youtube") return;
-
-  const iframe = root.createElement("iframe");
-  iframe.src = video.embedUrl;
-  iframe.title = "NEXUS project preview video";
-  iframe.loading = "lazy";
-  iframe.allow =
-    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-  iframe.allowFullscreen = true;
-  mount.replaceChildren(iframe);
-}
-
 export function renderResources(root, resources) {
   for (const resource of resources) {
     const link = root.querySelector(`[data-resource-id="${resource.id}"]`);
@@ -80,8 +64,6 @@ export function renderResources(root, resources) {
     link.removeAttribute("aria-disabled");
     link.removeAttribute("tabindex");
     link.classList.remove("is-coming-soon");
-    const status = link.querySelector("small");
-    if (status) status.textContent = "Available";
   }
 }
 
@@ -130,9 +112,7 @@ export function renderContact(root, contact, clipboard = globalThis.navigator?.c
     });
     emailCopy.addEventListener("click", async () => {
       const copied = await copyContactEmail(contact.email, clipboard);
-      emailCopyStatus.textContent = copied
-        ? "Copied"
-        : "Select and copy the address manually.";
+      emailCopyStatus.textContent = copied ? "Copied" : "Select and copy the address manually.";
     });
   }
 
@@ -163,9 +143,24 @@ export function renderContact(root, contact, clipboard = globalThis.navigator?.c
 
 export function renderSite(root, config) {
   const state = buildSiteState(config);
-  renderVideo(root, state.video);
   renderResources(root, state.resources);
   renderContact(root, state.contact);
+  const citationButton = root.querySelector("[data-copy-bibtex]");
+  const citationCode = root.querySelector(".citation-block code");
+  const citationStatus = root.querySelector("[data-bibtex-status]");
+  if (citationButton && citationCode && citationStatus) {
+    citationButton.addEventListener("click", async () => {
+      const copied = await copyContactEmail(citationCode.textContent.trim());
+      citationButton.textContent = copied ? "Copied!" : "Copy";
+      if (copied)
+        setTimeout(() => {
+          citationButton.textContent = "Copy";
+        }, 2000);
+      citationStatus.textContent = copied
+        ? "Copied!"
+        : "Please select and copy the citation manually.";
+    });
+  }
   return state;
 }
 

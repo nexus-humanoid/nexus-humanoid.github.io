@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="icon" href="public/brand/favicon.svg?v=2" type="image/svg+xml" />
+    <title>NEXUS · Interactive Demo</title>
+    <link rel="stylesheet" href="src/style.css?v=8" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three/build/three.module.js",
+          "three/addons/": "./vendor/three/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <header>
+      <div>
+        <a href="../" class="brand"
+          ><img src="public/brand/nexus-mark-color.svg" alt="" width="36" height="36" />NEXUS<span>
+            / interactive lab</span
+          ></a
+        >
+        <p>Perceptive Whole-Body Control for Terrain-Adaptive Teleoperation</p>
+      </div>
+      <span class="badge">INTERACTIVE DEMO</span>
+    </header>
+    <main>
+      <section class="viewport" aria-label="Robot simulation">
+        <canvas
+          tabindex="0"
+          id="scene"
+          aria-label="3D simulation — drag to orbit, scroll to zoom, Shift-drag the robot to apply force"
+        ></canvas>
+        <div class="overlay">
+          <span class="dot"></span><span id="status" role="status">Loading…</span>
+        </div>
+        <section id="reference-panel" aria-label="Reference motion preview" hidden>
+          <div class="reference-heading">
+            <strong>Reference <span>· flat ground</span></strong>
+            <div>
+              <button
+                id="reference-expand"
+                type="button"
+                aria-label="Enlarge reference preview"
+                title="Enlarge reference preview"
+                aria-pressed="false"
+              >
+                <svg
+                  viewBox="0 0 20 20"
+                  width="18"
+                  height="18"
+                  aria-hidden="true"
+                  fill="currentColor"
+                >
+                  <g class="expand-symbol"><path d="M9 6h5v5zM6 9v5h5z" /></g>
+                  <g class="shrink-symbol"><path d="M11.5 3.5v5h5zM3.5 11.5h5v5z" /></g>
+                </svg></button
+              ><button
+                id="reference-toggle"
+                type="button"
+                aria-label="Hide reference preview"
+                title="Hide reference preview"
+                aria-expanded="true"
+                aria-controls="reference-body"
+              >
+                −
+              </button>
+            </div>
+          </div>
+          <div id="reference-body">
+            <canvas
+              id="reference-scene"
+              aria-label="Reference pose on flat ground — drag to orbit"
+            ></canvas>
+            <p id="reference-label">Standing</p>
+          </div>
+        </section>
+        <div class="hint">Drag to orbit · Scroll to zoom · Shift-drag robot to apply force</div>
+        <div id="force-note" role="status" hidden></div>
+        <div id="boundary-note" role="status" hidden></div>
+        <div id="error" role="alert" hidden></div>
+      </section>
+      <aside>
+        <h1>One model.<br />Many motions.<br />Diverse terrains.</h1>
+        <p class="intro">
+          Explore <strong>NEXUS</strong>, a general-purpose Perceptive Behavior Foundation Model,
+          across motions and terrains. The motions available here are a small selection for this
+          interactive demo.
+        </p>
+        <fieldset id="controls" disabled>
+          <section class="keyboard-guide" aria-label="Keyboard controls">
+            <strong>Take control anytime</strong>
+            <div class="key-row"><kbd>↑</kbd><kbd>↓</kbd><span>Move forward / backward</span></div>
+            <div class="key-row"><kbd>←</kbd><kbd>→</kbd><span>Turn left / right</span></div>
+            <p class="note">
+              Hold an arrow key to move. Release to resume the motion, or stand if no motion is
+              playing.
+            </p>
+            <p class="note mouse-guide">
+              <strong>Apply force</strong> Hold Shift and drag the robot while playing to apply
+              force. Release the mouse or Shift to let go.
+            </p>
+          </section>
+          <section class="control-section" aria-labelledby="terrain-heading">
+            <h2 id="terrain-heading">Choose a scene</h2>
+            <p class="note">Click a terrain to switch immediately.</p>
+            <div id="terrain" class="choice-grid" role="group" aria-label="Terrain scenes"></div>
+            <p class="note" id="terrain-note" role="status"></p>
+          </section>
+          <section class="control-section" aria-labelledby="motion-heading">
+            <h2 id="motion-heading">Try a motion</h2>
+            <p class="note">Click to play from the robot’s current position.</p>
+            <div id="motion" class="choice-grid" role="group" aria-label="Motion clips"></div>
+          </section>
+
+          <section class="simulation-controls" aria-labelledby="simulation-controls-heading">
+            <h2 id="simulation-controls-heading">Simulation controls</h2>
+            <div class="buttons">
+              <button id="return">Stand still</button><button id="play">Resume</button>
+            </div>
+            <div class="buttons scene-tools">
+              <button id="recover" title="Restore the robot here and continue the current motion">
+                Recover robot</button
+              ><button id="reset">Reset scene</button>
+            </div>
+            <label class="check"><input id="follow" type="checkbox" checked /> Follow robot</label
+            ><button id="home" class="text-button">Reset camera</button>
+          </section>
+
+          <details class="motion-import">
+            <summary>Import your motion</summary>
+            <p class="note">
+              G1 29-joint JSON or CSV · up to 120 s / 20 MB. Files stay in your browser. Human
+              motion must first be retargeted to G1.
+            </p>
+            <label for="motion-file">Motion file</label
+            ><input
+              id="motion-file"
+              type="file"
+              accept=".json,.csv,application/json,text/csv"
+              aria-describedby="motion-format-note"
+            />
+            <div id="csv-settings" hidden>
+              <label for="csv-fps">CSV sample rate (Hz)</label
+              ><input id="csv-fps" type="number" value="50" min="1" max="240" step="any" /><label
+                for="csv-quaternion"
+                >CSV quaternion order</label
+              ><select id="csv-quaternion">
+                <option value="wxyz">WXYZ</option>
+                <option value="xyzw">XYZW</option>
+              </select>
+            </div>
+            <p class="note" id="motion-format-note">
+              Positions in metres; joint angles in radians.
+              <a href="motion-format.html" target="_blank" rel="noopener">Format guide</a> ·
+              <a href="public/assets/motion-example.json" download>Example JSON</a>
+            </p>
+            <button id="import-motion" type="button">Import motion</button>
+            <p id="import-error" role="alert" hidden></p>
+            <p class="note" id="import-result" role="status"></p>
+            <button id="play-imported" type="button" hidden>Play imported motion</button>
+          </details>
+          <section id="terrain-editor" aria-labelledby="custom-heading">
+            <h2 id="custom-heading">Build your own terrain</h2>
+
+            <p class="note">
+              Build a terrain patch surrounded by open flat ground. Patch width changes the
+              obstacles area, not the full walking space. Generate &amp; reset applies changes and
+              returns the robot to its starting stance.
+            </p>
+            <p class="field-label">Shape</p>
+            <div
+              id="custom-type"
+              class="choice-grid"
+              role="group"
+              aria-label="Custom terrain shape"
+            ></div>
+            <div id="custom-fields"></div>
+            <label class="check" id="custom-inverted-label"
+              ><input id="custom-inverted" type="checkbox" />Ascend outward from the center</label
+            >
+            <p class="note" id="custom-description"></p>
+            <p id="custom-error" role="alert" hidden></p>
+            <button id="generate" class="primary" type="button">Generate &amp; reset</button>
+            <p class="note" id="custom-result" role="status"></p>
+          </section>
+        </fieldset>
+        <div class="divider"></div>
+        <div class="eyebrow">ROBOT PERCEPTION</div>
+        <canvas id="depth" width="32" height="18" aria-label="Policy depth input"></canvas>
+        <dl>
+          <div>
+            <dt>Controller state</dt>
+            <dd id="phase">Default</dd>
+          </div>
+          <div>
+            <dt>Simulation time</dt>
+            <dd id="time">0.00 s</dd>
+          </div>
+          <div>
+            <dt>Simulation speed</dt>
+            <dd id="speed">—</dd>
+          </div>
+          <div>
+            <dt>Policy inference</dt>
+            <dd id="latency">—</dd>
+          </div>
+        </dl>
+        <p class="note">Fallen? Recover robot to continue here.</p>
+      </aside>
+    </main>
+    <script type="module" src="src/app.js?v=8"></script>
+  </body>
+</html>

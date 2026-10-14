@@ -1,0 +1,1 @@
+<mujoco model="NEXUS local demo"><include file="g1.xml" /><option timestep="0.002" integrator="implicitfast" /><worldbody><geom name="floor" type="plane" size="30 30 .1" rgba=".55 .6 .65 1" friction=".75 .1 .1" /></worldbody></mujoco>
