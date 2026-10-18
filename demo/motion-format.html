@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Motion format · NEXUS</title>
+    <link rel="stylesheet" href="src/style.css?v=4" />
+    <style>
+      article {
+        max-width: 820px;
+        margin: 40px auto;
+        padding: 0 24px;
+        line-height: 1.65;
+      }
+      h2 {
+        font-size: 20px;
+        margin-top: 30px;
+      }
+      pre {
+        overflow: auto;
+        padding: 16px;
+        background: #eaf0f4;
+        border-radius: 8px;
+        font-size: 12px;
+      }
+      code {
+        font-size: 13px;
+      }
+      a {
+        color: #245d74;
+      }
+    </style>
+  </head>
+  <body>
+    <article>
+      <a href="./">← Interactive demo</a>
+      <h1>Import a G1 motion</h1>
+      <p>
+        Import a trajectory already retargeted to the G1 robot's 29 joints. The existing policy
+        tracks it on the selected terrain. Files are processed locally in your browser; importing
+        does not train or replace the policy.
+      </p>
+      <p>
+        Use metres for positions and radians for joint angles. The root is the free-joint pelvis
+        frame. Coordinates are right-handed, with +Z up. Root height is measured above the reference
+        flat floor; it is not a height offset above the current terrain. Planar translation is
+        recentered on import and aligned to the current reference when playback starts.
+      </p>
+      <h2>JSON</h2>
+      <p>
+        <a href="public/assets/motion-example.json" download
+          >Download a valid one-second standing example</a
+        >. The built-in motion JSON files use the same arrays.
+      </p>
+      <pre>
+{
+  "fps": 50,
+  "quaternionOrder": "wxyz",
+  "jointNames": [ ... 29 names ... ],
+  "rootPos":  [ [x, y, z], ... ],
+  "rootQuat": [ [w, x, y, z], ... ],
+  "jointPos": [ [q0, q1, ... q28], ... ]
+}</pre>
+      <p>
+        <code>fps</code> and all three frame arrays are required. Arrays must have the same number
+        of frames. <code>quaternionOrder</code> defaults to <code>wxyz</code>; <code>xyzw</code> is
+        also supported. Quaternions must be nonzero and are normalized on import. If
+        <code>jointNames</code> is supplied, columns are reordered by name; otherwise the order
+        listed below is required.
+      </p>
+      <h2>CSV</h2>
+      <p>
+        Each row is one frame with exactly 36 comma-separated numbers: root position (3), root
+        quaternion (4), then joint positions (29). No timestamp column. Choose the sample rate and
+        quaternion order in the import controls. The header is optional; if present, use these exact
+        names and order for WXYZ:
+      </p>
+      <pre>
+root_x,root_y,root_z,root_qw,root_qx,root_qy,root_qz,left_hip_pitch_joint,left_hip_roll_joint,left_hip_yaw_joint,left_knee_joint,left_ankle_pitch_joint,left_ankle_roll_joint,right_hip_pitch_joint,right_hip_roll_joint,right_hip_yaw_joint,right_knee_joint,right_ankle_pitch_joint,right_ankle_roll_joint,waist_yaw_joint,waist_roll_joint,waist_pitch_joint,left_shoulder_pitch_joint,left_shoulder_roll_joint,left_shoulder_yaw_joint,left_elbow_joint,left_wrist_roll_joint,left_wrist_pitch_joint,left_wrist_yaw_joint,right_shoulder_pitch_joint,right_shoulder_roll_joint,right_shoulder_yaw_joint,right_elbow_joint,right_wrist_roll_joint,right_wrist_pitch_joint,right_wrist_yaw_joint</pre>
+      <p>
+        For XYZW, change the four quaternion header columns to
+        <code>root_qx,root_qy,root_qz,root_qw</code>, and arrange the values accordingly. CSV joint
+        columns always use the order below.
+      </p>
+      <h2>Joint order</h2>
+      <pre>
+ 0  left_hip_pitch_joint
+ 1  left_hip_roll_joint
+ 2  left_hip_yaw_joint
+ 3  left_knee_joint
+ 4  left_ankle_pitch_joint
+ 5  left_ankle_roll_joint
+ 6  right_hip_pitch_joint
+ 7  right_hip_roll_joint
+ 8  right_hip_yaw_joint
+ 9  right_knee_joint
+10  right_ankle_pitch_joint
+11  right_ankle_roll_joint
+12  waist_yaw_joint
+13  waist_roll_joint
+14  waist_pitch_joint
+15  left_shoulder_pitch_joint
+16  left_shoulder_roll_joint
+17  left_shoulder_yaw_joint
+18  left_elbow_joint
+19  left_wrist_roll_joint
+20  left_wrist_pitch_joint
+21  left_wrist_yaw_joint
+22  right_shoulder_pitch_joint
+23  right_shoulder_roll_joint
+24  right_shoulder_yaw_joint
+25  right_elbow_joint
+26  right_wrist_roll_joint
+27  right_wrist_pitch_joint
+28  right_wrist_yaw_joint</pre>
+      <h2>Timing and limits</h2>
+      <p>
+        Sample rates from 1 to 240 Hz are supported. Files must be no larger than 20 MB and contain
+        at most 120 seconds (frame count divided by sample rate). Playback is resampled to 50 Hz
+        using linear interpolation for positions and shortest-path spherical interpolation for
+        rotations. The final interval can be shortened by less than one 50 Hz frame. No smoothing or
+        retargeting is applied.
+      </p>
+      <p>
+        Click <strong>Import motion</strong> to validate and load, then
+        <strong>Play imported motion</strong>. A new import replaces the previously imported clip.
+        Invalid files leave the last valid clip available. The reference window shows the command
+        pose on a flat floor; the main view shows the policy's physical execution. An accepted file
+        is not a guarantee that the robot can execute every pose or transition.
+      </p>
+    </article>
+  </body>
+</html>

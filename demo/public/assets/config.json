@@ -1,0 +1,303 @@
+{
+  "jointNames": [
+    "left_hip_pitch_joint",
+    "left_hip_roll_joint",
+    "left_hip_yaw_joint",
+    "left_knee_joint",
+    "left_ankle_pitch_joint",
+    "left_ankle_roll_joint",
+    "right_hip_pitch_joint",
+    "right_hip_roll_joint",
+    "right_hip_yaw_joint",
+    "right_knee_joint",
+    "right_ankle_pitch_joint",
+    "right_ankle_roll_joint",
+    "waist_yaw_joint",
+    "waist_roll_joint",
+    "waist_pitch_joint",
+    "left_shoulder_pitch_joint",
+    "left_shoulder_roll_joint",
+    "left_shoulder_yaw_joint",
+    "left_elbow_joint",
+    "left_wrist_roll_joint",
+    "left_wrist_pitch_joint",
+    "left_wrist_yaw_joint",
+    "right_shoulder_pitch_joint",
+    "right_shoulder_roll_joint",
+    "right_shoulder_yaw_joint",
+    "right_elbow_joint",
+    "right_wrist_roll_joint",
+    "right_wrist_pitch_joint",
+    "right_wrist_yaw_joint"
+  ],
+  "kp": [
+    40.179, 99.098, 40.179, 99.098, 28.501, 28.501, 40.179, 99.098, 40.179, 99.098, 28.501, 28.501,
+    40.179, 28.501, 28.501, 14.251, 14.251, 14.251, 14.251, 14.251, 16.778, 16.778, 14.251, 14.251,
+    14.251, 14.251, 14.251, 16.778, 16.778
+  ],
+  "kd": [
+    2.558, 6.309, 2.558, 6.309, 1.814, 1.814, 2.558, 6.309, 2.558, 6.309, 1.814, 1.814, 2.558,
+    1.814, 1.814, 0.907, 0.907, 0.907, 0.907, 0.907, 1.068, 1.068, 0.907, 0.907, 0.907, 0.907,
+    0.907, 1.068, 1.068
+  ],
+  "defaultPose": [
+    -0.312, 0.0, 0.0, 0.669, -0.363, 0.0, -0.312, 0.0, 0.0, 0.669, -0.363, 0.0, 0.0, 0.0, 0.0, 0.2,
+    0.2, 0.0, 0.6, 0.0, 0.0, 0.0, 0.2, -0.2, 0.0, 0.6, 0.0, 0.0, 0.0
+  ],
+  "actionScale": [
+    0.548, 0.351, 0.548, 0.351, 0.439, 0.439, 0.548, 0.351, 0.548, 0.351, 0.439, 0.439, 0.548,
+    0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.075, 0.075, 0.439, 0.439, 0.439, 0.439,
+    0.439, 0.075, 0.075
+  ],
+  "offsets": [0, 1, 2, 3, 4, 5, 6, -1, -2, -4, -8, -12, -16],
+  "history": 10,
+  "controlDt": 0.02,
+  "physicsDt": 0.002,
+  "actionClip": 10,
+  "model": "assets/policy.onnx",
+  "defaultRootPos": [0.0, 0.0, 0.767],
+  "defaultRootQuat": [1.0, 0.0, 0.0, 0.0],
+  "transitionSteps": 100,
+  "camera": {
+    "raw_size": [270, 480],
+    "target_size": [18, 32],
+    "depth_range": [0.0, 2.0],
+    "crop_region": [2, 2, 2, 2]
+  },
+  "files": [
+    "g1.xml",
+    "meshes/head_link.STL",
+    "meshes/left_ankle_pitch_link.STL",
+    "meshes/left_ankle_roll_link.STL",
+    "meshes/left_elbow_link.STL",
+    "meshes/left_hip_pitch_link.STL",
+    "meshes/left_hip_roll_link.STL",
+    "meshes/left_hip_yaw_link.STL",
+    "meshes/left_knee_link.STL",
+    "meshes/left_rubber_hand.STL",
+    "meshes/left_shoulder_pitch_link.STL",
+    "meshes/left_shoulder_roll_link.STL",
+    "meshes/left_shoulder_yaw_link.STL",
+    "meshes/left_wrist_pitch_link.STL",
+    "meshes/left_wrist_pitch_link_5010.STL",
+    "meshes/left_wrist_roll_link.STL",
+    "meshes/left_wrist_roll_link_5010.STL",
+    "meshes/left_wrist_yaw_link.STL",
+    "meshes/left_wrist_yaw_link_5010.STL",
+    "meshes/logo_link.STL",
+    "meshes/pelvis.STL",
+    "meshes/pelvis_contour_link.STL",
+    "meshes/right_ankle_pitch_link.STL",
+    "meshes/right_ankle_roll_link.STL",
+    "meshes/right_elbow_link.STL",
+    "meshes/right_hip_pitch_link.STL",
+    "meshes/right_hip_roll_link.STL",
+    "meshes/right_hip_yaw_link.STL",
+    "meshes/right_knee_link.STL",
+    "meshes/right_rubber_hand.STL",
+    "meshes/right_shoulder_pitch_link.STL",
+    "meshes/right_shoulder_roll_link.STL",
+    "meshes/right_shoulder_yaw_link.STL",
+    "meshes/right_wrist_pitch_link.STL",
+    "meshes/right_wrist_pitch_link_5010.STL",
+    "meshes/right_wrist_roll_link.STL",
+    "meshes/right_wrist_roll_link_5010.STL",
+    "meshes/right_wrist_yaw_link.STL",
+    "meshes/right_wrist_yaw_link_5010.STL",
+    "meshes/torso_link_rev_1_0.STL",
+    "meshes/waist_roll_link_rev_1_0.STL",
+    "meshes/waist_yaw_link_rev_1_0.STL"
+  ],
+  "terrains": [
+    {
+      "id": "stairs",
+      "label": "Pyramid stairs",
+      "file": "stairs.xml",
+      "bounds": [-10, 10, -10, 10]
+    },
+    {
+      "id": "stairs-inverted",
+      "label": "Inverted stairs",
+      "file": "stairs-inverted.xml",
+      "bounds": [-10, 10, -10, 10]
+    },
+    { "id": "slope", "label": "Pyramid slope", "file": "slope.xml", "bounds": [-10, 10, -10, 10] },
+    {
+      "id": "slope-inverted",
+      "label": "Inverted slope",
+      "file": "slope-inverted.xml",
+      "bounds": [-10, 10, -10, 10]
+    },
+    { "id": "flat", "label": "Flat ground", "file": "flat.xml", "bounds": [-30, 30, -30, 30] }
+  ],
+  "motions": [
+    {
+      "id": "standstill",
+      "label": "Stand",
+      "category": "Locomotion",
+      "file": "assets/motions/standstill.json",
+      "frames": 169,
+      "duration": 3.38
+    },
+    {
+      "id": "walk1_subject1",
+      "label": "Walk",
+      "category": "Locomotion",
+      "file": "assets/motions/walk1_subject1.json",
+      "frames": 180,
+      "duration": 3.6
+    },
+    {
+      "id": "run1_subject2_1500_1800",
+      "label": "Jog",
+      "category": "Locomotion",
+      "file": "assets/motions/run1_subject2_1500_1800.json",
+      "frames": 300,
+      "duration": 6.0
+    },
+    {
+      "id": "run1_subject5_250_550",
+      "label": "Run",
+      "category": "Locomotion",
+      "file": "assets/motions/run1_subject5_250_550.json",
+      "frames": 300,
+      "duration": 6.0
+    },
+    {
+      "id": "side_walk_left",
+      "label": "Side walk (left)",
+      "category": "Locomotion",
+      "file": "assets/motions/side_walk_left.json",
+      "frames": 472,
+      "duration": 9.44
+    },
+    {
+      "id": "side_walk_right",
+      "label": "Side walk (right)",
+      "category": "Locomotion",
+      "file": "assets/motions/side_walk_right.json",
+      "frames": 472,
+      "duration": 9.44
+    },
+    {
+      "id": "back_walk",
+      "label": "Back walk",
+      "category": "Locomotion",
+      "file": "assets/motions/back_walk.json",
+      "frames": 200,
+      "duration": 4.0
+    },
+    {
+      "id": "crouch_ff_loop_180_R_001__A145",
+      "label": "Crouch",
+      "category": "Low poses",
+      "file": "assets/motions/crouch_ff_loop_180_R_001__A145.json",
+      "frames": 248,
+      "duration": 4.96
+    },
+    {
+      "id": "squat",
+      "label": "Squat",
+      "category": "Low poses",
+      "file": "assets/motions/squat.json",
+      "frames": 252,
+      "duration": 5.04
+    },
+    {
+      "id": "ground_sit_stand_11s",
+      "label": "Sit down & stand up",
+      "category": "Low poses",
+      "file": "assets/motions/ground_sit_stand_11s.json",
+      "frames": 550,
+      "duration": 11.0
+    },
+    {
+      "id": "kneel_left",
+      "label": "Kneel (left)",
+      "category": "Low poses",
+      "file": "assets/motions/kneel_left.json",
+      "frames": 190,
+      "duration": 3.8
+    },
+    {
+      "id": "kneel_right",
+      "label": "Kneel (right)",
+      "category": "Low poses",
+      "file": "assets/motions/kneel_right.json",
+      "frames": 190,
+      "duration": 3.8
+    },
+    {
+      "id": "kneel_both",
+      "label": "Kneel (both)",
+      "category": "Low poses",
+      "file": "assets/motions/kneel_both.json",
+      "frames": 435,
+      "duration": 8.7
+    },
+    {
+      "id": "jumps1_subject5_straight",
+      "label": "Jump",
+      "category": "Dynamic",
+      "file": "assets/motions/jumps1_subject5_straight.json",
+      "frames": 131,
+      "duration": 2.62
+    },
+    {
+      "id": "jump_and_land_heavy_001__A001",
+      "label": "Jump 2",
+      "category": "Dynamic",
+      "file": "assets/motions/jump_and_land_heavy_001__A001.json",
+      "frames": 610,
+      "duration": 12.2
+    },
+    {
+      "id": "fight1_subject3_612_680_0_170",
+      "label": "Fight combo",
+      "category": "Dynamic",
+      "file": "assets/motions/fight1_subject3_612_680_0_170.json",
+      "frames": 170,
+      "duration": 3.4
+    },
+    {
+      "id": "fight1_subject5_500_800",
+      "label": "Boxing footwork",
+      "category": "Dynamic",
+      "file": "assets/motions/fight1_subject5_500_800.json",
+      "frames": 300,
+      "duration": 6.0
+    },
+    {
+      "id": "dance1_subject2",
+      "label": "Dance 1",
+      "category": "Dance",
+      "file": "assets/motions/dance1_subject2.json",
+      "frames": 6574,
+      "duration": 131.48
+    },
+    {
+      "id": "dance1_subject3",
+      "label": "Dance 2",
+      "category": "Dance",
+      "file": "assets/motions/dance1_subject3.json",
+      "frames": 6574,
+      "duration": 131.48
+    },
+    {
+      "id": "single_leg_balance",
+      "label": "Single-leg balance",
+      "category": "Balance",
+      "file": "assets/motions/single_leg_balance.json",
+      "frames": 350,
+      "duration": 7.0
+    },
+    {
+      "id": "front_kick",
+      "label": "Front kick",
+      "category": "Dynamic",
+      "file": "assets/motions/front_kick.json",
+      "frames": 300,
+      "duration": 6.0
+    }
+  ]
+}
